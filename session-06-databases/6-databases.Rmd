@@ -98,7 +98,9 @@ For the simple examples that we will see here, we'll need some data sets that co
 -   Load it now and then inspect these data frames in your own console.
 
 ```{r, echo = F}
-library(nycflights13)
+library(tidyverse)
+library(dplyr)
+library(purrr)
 library(nycflights13)
 # flights 
 # planes
