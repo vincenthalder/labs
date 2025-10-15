@@ -99,6 +99,7 @@ For the simple examples that we will see here, we'll need some data sets that co
 
 ```{r, echo = F}
 library(nycflights13)
+library(nycflights13)
 # flights 
 # planes
 # airlines
