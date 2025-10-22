@@ -185,7 +185,7 @@ formula_string
 
 ```{r}
 formula <- as.formula(formula_string)
-formula
+formula 
 ```
 
 Here we can see that the formula we created above is identical to doing it directly.
@@ -209,6 +209,22 @@ Using the two-step approach, create formulas that perform the following regressi
 
 ```{r, echo= FALSE}
 # your code here
+formula_string <- paste("life_expectancy", "~ gdp + population + alcohol + gdp*population")
+formula <- as.formula(formula_string)
+reg3 <- lm(formula, data = life_expec_dat)
+summary(reg3)
+
+life_expec_dat1 <- life_expec_dat |> 
+  mutate(
+    sq_gdp = gdp^2,
+    lg_pop = log(population)
+  )
+
+formula_string <- paste("life_expectancy", "~ gdp + population + alcohol + sq_gdp + lg_pop")
+formula <- as.formula(formula_string)
+reg4 <- lm(formula, data = life_expec_dat1)
+summary(reg4)
+
 ```
 :::
 
@@ -332,6 +348,7 @@ Look at the `multiv_model_out` object that you have just created. Try to get a s
 
 ```{r, echo= FALSE}
 # your code here
+summary(multiv_model_out[[31]])
 ```
 :::
 
@@ -609,7 +626,27 @@ Our implementation of `modelsummary` above is good, but it can be improved furth
 
 
 ```{r, echo= FALSE}
+mod_table <- modelsummary::modelsummary(multiv_model_out[29:31], 
+                                        output = "kableExtra",
+                                        fmt = fmt_significant(2),  # 2 significant digits instead of fixed decimal places
+                                        estimate  = "{estimate}",
+                                        statistic = "conf.int",
+                                        coef_omit = "Intercept",
+                                        coef_rename=c("gdp"="Gdp", 
+                                                      "bmi"="Avg. BMI", 
+                                                      "alcohol" = "Alcohol Consum.",
+                                                      "hiv_aids"= "HIV cases", 
+                                                      "percentage_expenditure" = "Health Expenditure (% of GDP)",
+                                                      "life_expectancy" = "Life Expectancy"),
+                                        gof_omit = 'DF|Deviance|Log.Lik|AIC|BIC',
+                                        title = 'An Improved Regression Table',
+                                        notes = "Data sourced from the WHO via (https://www.kaggle.com/kumarajarshi/life-expectancy-who)",
+                                        escape = FALSE) |> 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, fixed_thead = T) |> 
+  row_spec(3, color = 'red') |>
+  row_spec(5, background = 'lightblue')
 
+mod_table
 ```  
 :::
 ---
