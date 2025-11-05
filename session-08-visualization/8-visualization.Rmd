@@ -200,13 +200,22 @@ Once we have our scatter plot, adapt the code to:
 
 
 ```{r, figures-side, fig.show="hold",  warning=F}
-ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
   geom_point() + 
-  labs(title = "Basic plot")
+  labs(title = "Basic plot",
+       x = "Flipper Length",
+       y = " Body Mass in Grams") + 
+  theme_minimal()
 ```
 
 ```{r}
-# YOUR CODE HERE
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point() + 
+  labs(title = "Advanced Plot",
+       x = "Flipper Length",
+       y = " Body Mass in Gramms",
+       color = "species") + 
+  theme_minimal()
 ```
 
 
@@ -254,7 +263,8 @@ What would happen if we specified 5 bins? Try it out.
 
 
 ```{r}
-# YOUR CODE HERE
+ggplot(df, aes(x = lifeExp)) +
+  geom_histogram(bins = 10)
 ```
 
 
@@ -331,6 +341,9 @@ Create a histogram showing the distribution of penguin body mass using the `peng
 
 ```{r}
 # YOUR CODE HERE
+ggplot(penguins, aes(x = body_mass_g, fill = "red", color = species )) +
+  geom_histogram() + 
+  theme_minimal()
 
 ```
 
@@ -338,6 +351,14 @@ Create a histogram showing the distribution of penguin body mass using the `peng
 
 ```{r}
 # YOUR CODE HERE
+ggplot(penguins, aes(x = penguins$body_mass_g, y = penguins$species)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.2, color = "blue") +
+  labs(title = "Body Mass by Species",
+       x = "Body Mass (g)",
+       y = "Species") +
+  theme_bw()
+
 ```
 
 
@@ -425,7 +446,9 @@ ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
        x = "GDP per capita (log10)",
        y = "Life expectancy") +
   scale_x_log10() +
-  theme_light()
+  theme_light() 
+
+## --> Change to non-scientific notation with scale_x_continuous() 
 ```
 
 
@@ -671,6 +694,24 @@ Create a scatter plot to explore the relationship between `flipper_length_mm` an
 
 ```{r}
 # YOUR CODE HERE
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(alpha = 0.7,
+             size = 0.5) +
+  labs(title = "Flipper Length and Body Mass",
+       x = "Flipper Length (mm)",
+       y = "Body Mass (g)") +
+  theme_light() + 
+  geom_smooth(method = "lm")
+
+# Grouped by species by adding color
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g, color = species)) +
+  geom_point(alpha = 0.7,
+             size = 0.5) +
+  labs(title = "Flipper Length and Body Mass",
+       x = "Flipper Length (mm)",
+       y = "Body Mass (g)") +
+  theme_light() + 
+  geom_smooth(method = "lm", inherit.aes = F, aes(x = flipper_length_mm, y = body_mass_g)) # To overide the inheritance of aesthetics from the first part. 
 ```
 
 ---
