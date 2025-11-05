@@ -279,8 +279,14 @@ We saw that the shape of the distribution is highly influenced by *how many bins
 Density plots are continuous alternatives to histograms that do not rely on bins. We will not cover details about the mechanics behind density plots and their estimation here. Just know that we can interpret the height of the density curve in a similar way to how we interpreted the height of the bars in a histogram: The higher the curve, the more observations we have at that specific value of the variable of interest. In this first example, we use the `geom_density()` function to create the density plot.
 
 ```{r, warning=F, message=F, fig.height=3}
+
 ggplot(df, aes(x = lifeExp)) +
-  geom_density()
+  geom_density(fill = "lightblue", linewidth = 0.2) +
+  labs( title = "Life Expectancy Density Plot", 
+        subtitle = "life expectancy in years",
+        x = "Life Expectancy",
+        y = "Density")
+
 ```
 
 ---
@@ -299,6 +305,7 @@ In `ggplot2` we can graph boxplots across multiple variables using the `geom_box
 We can flip the axes by using the `coord_flip()` command.
 
 ```{r, warning = F, message = F}
+
 ggplot(subset(df), aes(x = continent, y = lifeExp)) +
   geom_boxplot() +
   geom_jitter(alpha = 0.2, color = "blue") +
@@ -308,6 +315,7 @@ ggplot(subset(df), aes(x = continent, y = lifeExp)) +
        y = "Life expectancy in years") +
   theme_bw() +
   coord_flip()
+
 ```
 
 ---
@@ -341,9 +349,12 @@ Create a histogram showing the distribution of penguin body mass using the `peng
 
 ```{r}
 # YOUR CODE HERE
-ggplot(penguins, aes(x = body_mass_g, fill = "red", color = species )) +
-  geom_histogram() + 
-  theme_minimal()
+
+ggplot2::ggplot(penguins, aes(x = body_mass_g, color = species )) +
+  geom_histogram(fill = "grey") + 
+  theme_minimal() + 
+  labs(x = "Body Mass (g)")
+
 
 ```
 
@@ -351,13 +362,14 @@ ggplot(penguins, aes(x = body_mass_g, fill = "red", color = species )) +
 
 ```{r}
 # YOUR CODE HERE
-ggplot(penguins, aes(x = penguins$body_mass_g, y = penguins$species)) +
+ggplot(penguins, aes(x = penguins$species, y = penguins$body_mass_g )) +
   geom_boxplot() +
   geom_jitter(alpha = 0.2, color = "blue") +
   labs(title = "Body Mass by Species",
-       x = "Body Mass (g)",
-       y = "Species") +
-  theme_bw()
+       x = "Species",
+       y = "Body Mass (g)") +
+  theme_bw() +
+  coord_flip()
 
 ```
 
@@ -382,6 +394,7 @@ ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
 The plot above shows a large amount of clustering on the left side of the plot, while the right side of the plot is sparsely populated. This makes it hard to gauge the relationship between the two variables. Below, we make a few adjustments to the graph to better display the relationship.
 
 ```{r, warning = F, message = F}
+
 ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
   geom_point(alpha = 0.4,
              size = 0.5) +
@@ -389,6 +402,9 @@ ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
        x = "GDP per capita",
        y = "Life expectancy") +
   theme_light()
+
+
+
 ```
 
 ---
@@ -398,6 +414,7 @@ ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
 One reason why the plot above is hard to read is rooted in the shape of the distribution of the GDP per capita variable. GDP per capita has a strong right skew (yes, right, look at where the *tail* of the distribution is). Below we are plotting the average on top of the graph using the `geom_vline()`.
 
 ```{r, warning = F, message = F}
+
 av <-  mean(df$gdpPercap) # avg gpd per capita
 
 ggplot(df,
@@ -405,6 +422,7 @@ ggplot(df,
   geom_line(stat = "density") +
   labs(title = "Untransformed distribution") +
   geom_vline(xintercept = av, color = "red") #try just typing 7215
+
 ```
 
 We can correct for this skew and transform the variable to have a more "normal" distribution by taking the logarithm with base 10. There are multiple ways to do this.
@@ -414,6 +432,7 @@ We can correct for this skew and transform the variable to have a more "normal" 
 3.  Using [scales](https://ggplot2.tidyverse.org/reference/scale_continuous.html) to transform the display. Note that the data is transformed before properties such as the range of the axis are determined.
 
 ```{r, fig.show="hold",  warning=F, message=F}
+
 log10_direct_plot <- ggplot(df, aes(x = log10(gdpPercap))) +
   geom_line(stat = "density") +
   labs(title = "Applying log10 to variable directly") +
@@ -425,8 +444,9 @@ log10_via_scale_plot <- ggplot(df,
        aes(x = gdpPercap)) +
   geom_line(stat = "density") +
   labs(title = "Transformation using scales") +
-  scale_x_log10() +
-  geom_vline(xintercept = av, color = "red")
+  scale_x_log10(trans = "log10",
+                 labels = scales::label_number()) +
+  geom_vline(xintercept = av, color = "red") 
 
 # Bonus: alternatively could also use scale_x_continuous(trans = "log10")
 
@@ -439,16 +459,17 @@ gridExtra::grid.arrange(log10_direct_plot, log10_via_scale_plot, ncol = 2)
 We can use the same principle in bivariate (or multivariate) displays of data. Below, we use the `scale` transformation on the variable and reflect it in the axis label clarify that it is the relationship between life expectancy and the logarithm of GDP per capita that has a strong positive relationship.
 
 ```{r, warning = F, message = F}
+
 ggplot(df, aes(x = gdpPercap, y = lifeExp)) +
   geom_point(alpha = 0.4,
              size = 0.5) +
   labs(title = "Economic wealth and life expectancy",
        x = "GDP per capita (log10)",
        y = "Life expectancy") +
-  scale_x_log10() +
+  scale_x_log10(trans = "log10",
+                 labels = scales::label_number()) +
   theme_light() 
 
-## --> Change to non-scientific notation with scale_x_continuous() 
 ```
 
 
@@ -463,7 +484,8 @@ The default smoothing method is `loess` for less than 1,000 observations and `ga
 In our example, the trend line shows that the negative relationship at higher values of GDP per capita has a much lower precision than the positive relationship we observe for the majority of the observations.
 
 ```{r, fig.show="hold",  warning=F, message=F}
-ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
+
+p1 <- ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
   geom_point(alpha = 0.4,
              size = 0.5) +
   labs(title = "Economic wealth and life expectancy",
@@ -473,7 +495,7 @@ ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
   geom_smooth()
 
 #Alternatively, we can add a linear trend line to the data.
-ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
+p2 <- ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
   geom_point(alpha = 0.4,
              size = 0.5) +
   labs(title = "Economic wealth and life expectancy",
@@ -481,11 +503,14 @@ ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
        y = "Life expectancy") +
   theme_light() +
   geom_smooth(method = "lm")
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
 ```
 
 Finally, we can display separate trendlines for groups of data. For example, suppose we wanted to know how the relationship between GDP per capita and life expectancy varies by continent. We can pass the grouping variable to the `color` (and/or `linetype`) parameter within the `aes()` function. Below, we further reduce the opacity of the points to avoid overplotting. Note that the color grouping is passed to both the `geom_point()` and the `geom_smooth()` aesthetic.
 
 ```{r, warning = F}
+
 ggplot(df, aes(x = log(gdpPercap),
                y = lifeExp,
                color = continent)) +
@@ -496,6 +521,8 @@ ggplot(df, aes(x = log(gdpPercap),
        y = "Life expectancy") +
   theme_light() +
   geom_smooth(method = "lm")
+
+
 ```
 
 ---
