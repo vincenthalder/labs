@@ -538,11 +538,14 @@ ggplot(subset(df, country == "China"),
   geom_line()
 
 # We can add points to the line to highlight which observations are available in the underlying data.
+
 ggplot(subset(df, country == "China"),
        aes(x = year,
            y = gdpPercap)) +
   geom_line() +
   geom_point()
+
+
 ```
 
 
@@ -554,6 +557,7 @@ To compare a time series across many units, we can plot all series in one figure
 
 
 ```{r}
+
 ggplot(df,
        aes(x = year,
            y = lifeExp,
@@ -566,6 +570,8 @@ ggplot(df,
   theme_light() +
   geom_line(data = subset(df, country %in% "China"),
             color = "red", linewidth = 1)
+
+
 ```
 
 
@@ -579,11 +585,14 @@ Heatmaps are another great way to illustrate trends for many different groups in
 Below, we use our data wrangling skills from the last sessions to compute the correlation between the variables `lifeExp` and `gdpPercap` for each continent. Note that we exclude "Oceania" for this exercise.
 
 ```{r}
+
 # Compute Pearson correlation coefficient by year and continent
 cors <- df |>  
   dplyr::filter(continent != "Oceania") |> 
   dplyr::group_by(continent, year) |> 
   dplyr::summarize(cor = cor(lifeExp, log10(gdpPercap)))
+
+
 ```
 
 We can use the `geom_tile()` geom to create the heatmap; specifying the variable we want to display in color via the `fill` command. We can improve the left plot in a number of ways. First, the color scheme is not necessarily intuitive. The colors aren't separated enough to best display smaller differences in the correlation coefficient, because they are based on the same hue. We can customize our colors to display a gradient with multiple hues.
@@ -595,6 +604,8 @@ ggplot(cors, aes(x = year, y = continent, fill = cor)) +
 ggplot(cors, aes(x = year, y = continent, fill = cor)) +
   geom_tile() +
   scale_fill_gradient(low = "darkblue", high = "red")
+
+
 ```
 
 We can also use existing color gradient schemes to better distinguish values in our plot. Below, we use color scales from the [viridis package](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html). We also give the legend a more informative title.
@@ -620,11 +631,13 @@ ggplot(cors, aes(x = year, y = continent, fill = cor)) +
   geom_tile() +
   scale_fill_viridis(option = "inferno", name = "Correlation",
                      limits = c(0, 1))
+
 ```
 
 Bonus: To improve on this graph, we can add some of the other elements offered by the `ggplot2` package.
 
 ```{r,  warning = F, message = F, fig.height = 3, fig.width = 6}
+
 ggplot(cors, aes(x = year, y = continent, fill = cor)) +
   geom_tile(color = "white") +
   scale_fill_viridis(option = "inferno", name = "Correlation\ncoefficient",
@@ -646,6 +659,8 @@ ggplot(cors, aes(x = year, y = continent, fill = cor)) +
   
   # Reduce space between plot and labels
   coord_cartesian(expand = 0)
+
+
 ```
 
 ---
@@ -655,6 +670,7 @@ ggplot(cors, aes(x = year, y = continent, fill = cor)) +
 Suppose we wanted to visualize global population growth over time. We might first want to compute the total population per continent and year.
 
 ```{r, message=F, warning =F}
+
 globalpop <- df |> 
   dplyr::group_by(continent, year) |> 
   
@@ -666,39 +682,52 @@ globalpop <- df |>
 ggplot(globalpop, aes(x = year, y = pop_tot, fill = continent)) +
   geom_col() +
   theme_minimal()
+
+
 ```
 
 `ggplot2()` is pretty nice and it just stacked each continent's population on top of each other. If we instead wanted a separate bar for each continent, we can use the `position` parameter within `geom_col()`.
 
 ```{r, fig.show="hold",  warning=F, message=F}
+
 # separate bars
 ggplot(globalpop,
        aes(x = year, y = pop_tot, fill = continent)) +
   geom_col(position = position_dodge()) +
   theme_minimal()
+
+
 ```
 
 Suppose we wanted to know which countries in Europe are shrinking and which countries are growing in terms of their population. We can use our data wrangling skills to compute the most recent change in population by taking the current value and subtracting the previous year's value.
 
 ```{r}
+
 diff07 <- df |> 
   dplyr::group_by(country) |>
   dplyr::arrange(year) |> 
   dplyr::mutate(fd = pop - dplyr::lag(pop))
+
+
+
 ```
 
 Below, we plot the change in population for European countries in 2007.
 
 ```{r,  warning = F, message = F}
+
 ggplot(subset(diff07, continent == "Europe" & year == 2007),
        aes(x = country, y = fd)) +
   geom_col() +
   theme_minimal()
+
+
 ```
 
 This is really hard to see. Let's flip the axes using `coord_flip()`. This could useful because countries are ordered alphabetically, but visually, it is confusing. Let's reorder the country axis based on the value of the population change. The default is to order the points in ascending order from the origin.
 
 ```{r, fig.show="hold",  fig.height = 6 , warning=F, message=F}
+
 ggplot(subset(diff07, continent == "Europe" & year == 2007),
        aes(x = country, y = fd)) +
   geom_col() +
@@ -711,6 +740,8 @@ ggplot(subset(diff07, continent == "Europe" & year == 2007),
   coord_flip() +
   labs(x = "", y = "Population change in millions") +
   theme_minimal()
+
+
 ```
 
 ---
@@ -752,6 +783,7 @@ The default graphs we have produced so far are not (yet) ready for publication. 
 ## Title, subtitle, and axes titles
 
 ```{r, warning = F, message = F, fig.height = 2, fig.width = 5}
+
 ggplot(df,aes(x = lifeExp)) +
   geom_line(stat = "density") +
   labs(title = "Distribution of global life expectancy 1952-2007",
@@ -760,6 +792,8 @@ ggplot(df,aes(x = lifeExp)) +
        x = "Life expectancy in years",
        y = "Density") +
   theme_minimal()
+
+
 ```
 
 ---
@@ -769,6 +803,7 @@ ggplot(df,aes(x = lifeExp)) +
 By default, `ggplot()` adjusted the x-axis to start not at zero but at approximately 23 to reduce the amount of empty space in the plot. We can manually adjust the range of the axes using the `coord_cartesian()` parameter.
 
 ```{r, warning = F, message = F, fig.height = 2, fig.width = 5}
+
 ggplot(df, aes(x = lifeExp)) +
   geom_line(stat = "density") +
   labs(title = "Distribution of global life expectancy 1952-2007",
@@ -777,6 +812,8 @@ ggplot(df, aes(x = lifeExp)) +
        y = "Density") +
   coord_cartesian(xlim = c(0, 85)) +
   theme_minimal()
+
+
 ```
 
 
@@ -858,6 +895,8 @@ ggplot(df, aes(x = lifeExp)) +
        x = "Life expectancy in years",
        y = "Density") +
   theme_minimal()
+
+
 ```
 
 ---
@@ -867,12 +906,15 @@ ggplot(df, aes(x = lifeExp)) +
 We can adjust the *opacity* via the `alpha` parameter within any geometric object. The `alpha` parameter ranges between zero and one. Adjusting the opacity of the geometric objects is especially important when plotting multiple lines, points (or other objects) in the same graph to reduce overplotting.
 
 ```{r, warning = F, message = F}
+
 ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
   geom_point(alpha = 0.4, color = "#2727ff") +
   labs(title = "Economic wealth and life expectancy",
        x = "GDP per capita (log10)",
        y = "Life expectancy") +
   theme_light()
+
+
 ```
 
 ---
@@ -884,6 +926,7 @@ We can adjust the default symbol used by `ggplot2` to display the points. The pa
 We can also have groups of data displayed using different point shapes. Below, we group by continent. We subset the data to just the year 2007 to de-clutter the plot.
 
 ```{r, fig.show="hold",  warning=F, message=F}
+
 ggplot(df, aes(x = log(gdpPercap), y = lifeExp)) +
   geom_point(alpha = 0.4,
              size = 0.5,
@@ -903,6 +946,8 @@ ggplot(subset(df, year == 2007),
        x = "GDP per capita (log10)",
        y = "Life expectancy") +
   theme_light()
+
+
 ```
 
 ---
@@ -920,12 +965,15 @@ We can alter the appearance of any element in the plot. Below, we change the pre
 Sometimes, we want to compare distributions across different groups in our data set. Suppose, we wanted to assess the distribution of the life expectancy on different continents. We can use the `table()` function to get an overview over the groups in our data.
 
 ```{r, warning = F, message = F, fig.height = 2.5, fig.width = 5}
+
 table(df$continent)
+
 ```
 
 We pass a separate color to the distribution of the `lifeExp` for each continent by specifying the `color` parameter within the aesthetics. Remember, to remove the `color` parameter from the `geom_line()` function. The ability to pass a second variable to the graph with just one aesthetic (here: color) is where the true power of `ggplot2` for data visualization lies.
 
 ```{r, warning = F, message = F}
+
 ggplot(df, aes(x = lifeExp, color = continent)) +
   geom_line(stat = "density") +
   labs(title = "Distribution of global life expectancy 1952-2007",
@@ -933,6 +981,8 @@ ggplot(df, aes(x = lifeExp, color = continent)) +
        x = "Life expectancy in years",
        y = "Density") +
   theme_bw()
+
+
 ```
 
 
@@ -998,6 +1048,7 @@ ggplot(df, aes(x = lifeExp, color = continent, linetype = continent)) +
 Another option to graph different groups is to use faceting. This means to plot each value of the variable upon which we facet in a different panel within the same plot. Here, we will use the `facet_wrap()` function.
 
 ```{r, warning = F, message = F, fig.height = 3, fig.width = 8}
+
 ggplot(df, aes(x = lifeExp)) +
   geom_line(stat = "density") +
   labs(title = "Distribution of global life expectancy 1952-2007",
@@ -1006,6 +1057,8 @@ ggplot(df, aes(x = lifeExp)) +
        y = "Density") +
   theme_bw() +
   facet_wrap(~ continent, nrow = 1)
+
+
 ```
 
 We can use the `facet_grid()` to create facets across more than one variable. Suppose, we were interested in the evolution of the distribution of the life expectancy over time for each continent.
@@ -1013,6 +1066,7 @@ We can use the `facet_grid()` to create facets across more than one variable. Su
 Oceania causing the y-axis to have a large range, which makes the values for the other continents hard to see. There are different ways to deal with this (hint: check out the `scales = "free"` command). Below, we simply exclude Oceania, since it is only comprised of Australia and New Zealand. We can either create a new subsample data frame, or use the `subset()` command directly within `ggplot()`.
 
 ```{r, warning = F, message = F, fig.height = 9, fig.width = 8}
+
 ggplot(subset(df, continent != "Oceania"),
        aes(x = lifeExp)) +
   geom_line(stat = "density") +
@@ -1022,6 +1076,8 @@ ggplot(subset(df, continent != "Oceania"),
        y = "Density") +
   theme_bw() +
   facet_grid(year ~ continent)
+
+
 ```
 
 ---
