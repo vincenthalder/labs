@@ -98,7 +98,7 @@ Welcome back everyone! Today we will have a look at
 Shiny is an R package that makes it easy to build interactive web applications (apps) straight from R. You need to install the package `shiny`:
 
 ```{r, eval = F}
-#install.packages("shiny")
+install.packages("shiny")
 library(shiny)
 ```
 
@@ -163,6 +163,8 @@ fluidPage(
   )
 )
 ```
+
+
 
 Focus on the hierarchy of the function calls:
 

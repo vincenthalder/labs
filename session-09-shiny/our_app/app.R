@@ -19,7 +19,7 @@ all_movies <- dplyr::inner_join(omdb, tomatoes, by = "ID") %>%
   dplyr::select(ID, imdbID, Title, Year, Rating_m = Rating.x, Runtime, Released,
                 Director, Writer, imdbRating, imdbVotes, Language, Country, Oscars,
                 Rating = Rating.y, Meter, Reviews, Fresh, Rotten, userMeter, userRating, userReviews,
-                BoxOffice, Production, Cast)
+                BoxOffice, Production, Cast, Genre)
 
 # Variables that can be put on the x and y axes
 axis_vars <- c(
@@ -64,7 +64,11 @@ ui <- fluidPage(
              sliderInput("boxoffice", "Dollars at Box Office (millions)",
                          0, 800, c(0, 800), step = 1),
              textInput("director", "Director name contains (e.g., Miyazaki)"),
-             textInput("cast", "Cast names contains (e.g. Tom Hanks)")
+             textInput("cast", "Cast names contains (e.g. Tom Hanks)"),
+             selectInput("genre", "Genre", choices = c("All", "Action", "Adventure", "Animation", "Biography", "Comedy",
+                                                       "Crime", "Documentary", "Drama", "Family", "Fantasy", "History",
+                                                       "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi",
+                                                       "Short", "Sport", "Thriller", "War", "Western"))
            ),
            
            # Plot axis selector
@@ -177,7 +181,8 @@ server <- function(input, output, session) {
         '<b>', Title, '</b><br>',
         'Year: ', Year, '<br>',
         'Box Office: $', round(BoxOffice / 1000000, digits = 1), 'm'
-      )"
+      )",
+        size = "BoxOffice"
       )
     ) +
       geom_point(shape = 21, alpha = 0.7) +
@@ -185,8 +190,9 @@ server <- function(input, output, session) {
       scale_color_manual(values = c("Yes" = "orange", "No" = "gray"),guide = "none") +
       labs(
         x = xvar_name,
-        y = yvar_name
-      ) +
+        y = yvar_name,
+        title = paste(xvar_name, "vs", yvar_name)
+      ) + 
       theme_minimal()
     
     # Convert to plotly
