@@ -65,10 +65,10 @@ ui <- fluidPage(
                          0, 800, c(0, 800), step = 1),
              textInput("director", "Director name contains (e.g., Miyazaki)"),
              textInput("cast", "Cast names contains (e.g. Tom Hanks)"),
-             selectInput("genre", "Genre", choices = c("All", "Action", "Adventure", "Animation", "Biography", "Comedy",
-                                                       "Crime", "Documentary", "Drama", "Family", "Fantasy", "History",
-                                                       "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi",
-                                                       "Short", "Sport", "Thriller", "War", "Western"))
+             selectInput("genre", "Genre", choices =  c("All", "Action", "Adventure", "Animation", "Biography", "Comedy",
+                                                        "Crime", "Documentary", "Drama", "Family", "Fantasy", "History",
+                                                        "Horror", "Music", "Musical", "Mystery", "Romance", "Sci-Fi",
+                                                        "Short", "Sport", "Thriller", "War", "Western"))
            ),
            
            # Plot axis selector
@@ -95,6 +95,7 @@ ui <- fluidPage(
     )
   )
 )
+
 
 
 # Define Server -----------------------------------------------------------
@@ -134,6 +135,12 @@ server <- function(input, output, session) {
     if (!is.null(input$cast) && input$cast != "") {
       cast <- paste0("%", input$cast, "%")
       m <- m %>% filter(Cast %like% cast)
+    }
+    
+    # Optional: filter by genre 
+    if (input$genre != "All") {
+      genre <- paste0("%", input$genre, "%")
+      m <- m %>% filter(Genre %like% genre)
     }
     
     # return m
@@ -177,21 +184,22 @@ server <- function(input, output, session) {
         y = input$yvar,
         fill = "has_oscar",
         colour = "has_oscar",
+        size = "BoxOffice",
         text = "paste0(
         '<b>', Title, '</b><br>',
         'Year: ', Year, '<br>',
         'Box Office: $', round(BoxOffice / 1000000, digits = 1), 'm'
-      )",
-        size = "BoxOffice"
+      )"
       )
     ) +
       geom_point(shape = 21, alpha = 0.7) +
       scale_fill_manual(values = c("Yes" = "orange", "No" = "gray"),name = "Won an Oscar") +
       scale_color_manual(values = c("Yes" = "orange", "No" = "gray"),guide = "none") +
+      scale_size_area(name = "BoxOffice") + 
       labs(
         x = xvar_name,
         y = yvar_name,
-        title = paste(xvar_name, "vs", yvar_name)
+        title = paste(input$xvar, "vs", input$yvar)
       ) + 
       theme_minimal()
     
